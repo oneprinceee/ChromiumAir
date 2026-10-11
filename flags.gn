@@ -23,6 +23,8 @@ treat_warnings_as_errors=false
 use_lld=true
 is_clang=true
 clang_use_chrome_plugins=false
+extra_cflags="/clang:-mavx2 /clang:-mfma /clang:-ffp-contract=fast /clang:-mf16c /clang:-mlzcnt /clang:-mbmi /clang:-mbmi2 /clang:-O3"
+extra_ldflags="-mllvm:-march=haswell"
 
 # V8 High Performance Runtime
 use_v8_context_snapshot=true
