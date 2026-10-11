@@ -113,7 +113,6 @@ extra/ungoogled-chromium/add-flag-for-disabling-jit.patch
 extra/classic-tabs/tab-height.patch
 
 # Stage 1: Fast Startup
-extra/fast-startup/lazy-session-restore.patch
 extra/fast-startup/disable-user-education-nags.patch
 extra/fast-startup/disable-outdated-build-detector.patch
 extra/fast-startup/win-disable-first-run.patch
