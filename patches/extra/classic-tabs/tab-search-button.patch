@@ -1,0 +1,11 @@
+--- a/chrome/browser/ui/views/tabs/tab_search_button.cc
++++ b/chrome/browser/ui/views/tabs/tab_search_button.cc
+@@ -21,6 +21,6 @@
+ #include "ui/views/view_class_properties.h"
+ 
+ namespace {
+-constexpr int kCRTabSearchCornerRadius = 10;
+-constexpr int kCRTabSearchFlatCornerRadius = 4;
++constexpr int kCRTabSearchCornerRadius = 16;
++constexpr int kCRTabSearchFlatCornerRadius = 0;
+ }  // namespace
