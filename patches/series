@@ -111,7 +111,6 @@ extra/ungoogled-chromium/add-flag-for-disabling-jit.patch
 
 # Stage 1: UI Classic Tabs
 extra/classic-tabs/tab-height.patch
-extra/classic-tabs/tab-shape.patch
 extra/classic-tabs/tab-search-button.patch
 
 # Stage 1: Speed & Compiler Optimizations (AVX2/FMA)
