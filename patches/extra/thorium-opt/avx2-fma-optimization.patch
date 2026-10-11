@@ -1,0 +1,25 @@
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index e4681ca..9356873 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -3020,8 +3020,9 @@ config("optimize") {
+   if (is_win) {
+     # clang-cl's /O2 corresponds to clang's -O3, and really want -O2 for
+     # consistency with the other platforms.
+     cflags = [
+       "/O2",
++      "/clang:-O3",
++      "-Xclang", "-O3",
+     ] + common_optimize_on_cflags
+ 
+     # The `-O3` for clang turns on extra optimizations compared to the standard
+@@ -2710,6 +2711,10 @@ config("compiler_cpu_abi") {
+       if (current_cpu == "x64") {
+         if (is_win) {
++          cflags += [
++            "/clang:-mavx2", "/clang:-mfma", "/clang:-ffp-contract=fast",
++            "/clang:-mf16c", "/clang:-mlzcnt", "/clang:-mbmi", "/clang:-mbmi2",
++          ]
++          ldflags += [ "-mllvm:-march=haswell" ]
+         }
+       }

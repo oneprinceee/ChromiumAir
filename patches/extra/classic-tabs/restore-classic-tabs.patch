@@ -1,0 +1,62 @@
+diff --git a/chrome/browser/ui/layout_constants.cc b/chrome/browser/ui/layout_constants.cc
+index b2c1709..9f6702a 100644
+--- a/chrome/browser/ui/layout_constants.cc
++++ b/chrome/browser/ui/layout_constants.cc
+@@ -158,13 +158,13 @@ int GetLayoutConstant(LayoutConstant constant) {
+     case LayoutConstant::kTabCloseButtonSize:
+       return touch_ui ? 24 : (features::IsRoundedIconsEnabled() ? 14 : 16);
+     case LayoutConstant::kTabHeight:
+-      return 34 + GetLayoutConstant(LayoutConstant::kTabstripToolbarOverlap);
++      return 30 + GetLayoutConstant(LayoutConstant::kTabstripToolbarOverlap);
+     case LayoutConstant::kTabStripHeight:
+       return GetLayoutConstant(LayoutConstant::kTabHeight) +
+              GetLayoutConstant(LayoutConstant::kTabStripPadding);
+     case LayoutConstant::kTabStripPadding:
+       return 6;
+     case LayoutConstant::kTabSeparatorHeight:
+       return touch_ui ? 24 : 20;
+     case LayoutConstant::kTabPreTitlePadding:
+       return 8;
+diff --git a/chrome/browser/ui/views/tabs/tab_style_views.cc b/chrome/browser/ui/views/tabs/tab_style_views.cc
+index 44a60df..3dd5d74 100644
+--- a/chrome/browser/ui/views/tabs/tab_style_views.cc
++++ b/chrome/browser/ui/views/tabs/tab_style_views.cc
+@@ -213,8 +213,8 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
+ 
+   // Calculate the corner radii. Note that corner radius is based on original
+   // tab width (in DIP), not our new, scaled-and-aligned bounds.
+-  float content_corner_radius =
+-      GetTopCornerRadiusForWidth(tab()->width()) * scale;
+-  float extension_corner_radius = tab_style()->GetBottomCornerRadius() * scale;
++  float content_corner_radius = 10.0f * scale;
++  float extension_corner_radius = 12.0f * scale;
+ 
+   const float separator_overlap = (tab_style()->GetSeparatorMargins().width() +
+                                    tab_style()->GetSeparatorSize().width()) *
+@@ -222,12 +222,7 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
+ 
+   // Selected, hover, and inactive tab fills are a detached squarcle tab.
+-  if ((path_type == TabStyle::PathType::kFill &&
+-       state != TabStyle::TabSelectionState::kActive) ||
+-      path_type == TabStyle::PathType::kHighlight ||
+-      path_type == TabStyle::PathType::kInteriorClip ||
+-      path_type == TabStyle::PathType::kHitTest) {
++  if (false) {
+     float top_left_corner_radius = content_corner_radius;
+     float top_right_corner_radius = content_corner_radius;
+     float bottom_left_corner_radius = content_corner_radius;
+diff --git a/chrome/browser/ui/views/tabs/tab_search_button.cc b/chrome/browser/ui/views/tabs/tab_search_button.cc
+index c62091a..438f68d 100644
+--- a/chrome/browser/ui/views/tabs/tab_search_button.cc
++++ b/chrome/browser/ui/views/tabs/tab_search_button.cc
+@@ -21,8 +21,8 @@
+ #include "ui/views/view_class_properties.h"
+ 
+ namespace {
+-constexpr int kCRTabSearchCornerRadius = 10;
+-constexpr int kCRTabSearchFlatCornerRadius = 4;
++constexpr int kCRTabSearchCornerRadius = 16;
++constexpr int kCRTabSearchFlatCornerRadius = 0;
+ }  // namespace
+ 
+ TabSearchButton::TabSearchButton(

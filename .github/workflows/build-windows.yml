@@ -1,0 +1,214 @@
+name: Build ChromiumAir (Windows x64)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag'
+        required: true
+        default: 'v155.0.8059.39-air'
+      upload_release:
+        description: 'Publish assets to GitHub Releases'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-chromiumair-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-windows:
+    name: Build ChromiumAir Windows x64 (AVX2)
+    runs-on: windows-2022
+    timeout-minutes: 360
+
+    env:
+      DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
+      PYTHONIOENCODING: 'utf-8'
+      CHROMIUM_VERSION: '155.0.8059.39'
+
+    steps:
+      - name: Checkout ChromiumAir Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Free Disk Space on Runner
+        shell: pwsh
+        run: |
+          Write-Host "Freeing runner storage for Chromium build..."
+          $dirsToClean = @(
+            "C:\Android",
+            "C:\vcpkg",
+            "C:\hostedtoolcache\windows\Java",
+            "C:\hostedtoolcache\windows\Ruby",
+            "C:\hostedtoolcache\windows\Go"
+          )
+          foreach ($dir in $dirsToClean) {
+            if (Test-Path $dir) {
+              Write-Host "Removing $dir..."
+              Remove-Item -LiteralPath $dir -Recurse -Force -ErrorAction SilentlyContinue
+            }
+          }
+          Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name="FreeGB";Expression={[math]::round($_.Free/1GB,2)}}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httplib2 clang packaging unidiff
+
+      - name: Set up depot_tools
+        shell: pwsh
+        run: |
+          Write-Host "Cloning depot_tools..."
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $env:USERPROFILE\depot_tools
+          "$env:USERPROFILE\depot_tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Retrieve Sources (Chromium 155 & uBlock Origin)
+        shell: pwsh
+        run: |
+          mkdir -p download_cache
+          Write-Host "Retrieving official Chromium source archive..."
+          python utils/downloads.py retrieve -i downloads.ini -c download_cache
+          Write-Host "Retrieving uBlock Origin dependency..."
+          python utils/downloads.py retrieve -i deps.ini -c download_cache
+
+      - name: Unpack Sources
+        shell: pwsh
+        run: |
+          Write-Host "Unpacking Chromium sources into chromium_src..."
+          python utils/downloads.py unpack -i downloads.ini -c download_cache chromium_src
+          Write-Host "Unpacking uBlock Origin into third_party/ublock..."
+          python utils/downloads.py unpack -i deps.ini -c download_cache chromium_src
+
+      - name: Prune Google Binaries
+        shell: pwsh
+        run: |
+          Write-Host "Pruning pre-built binaries..."
+          python utils/prune_binaries.py chromium_src pruning.list
+
+      - name: Apply ChromiumAir Patches
+        shell: pwsh
+        run: |
+          Write-Host "Applying ChromiumAir patch series..."
+          python utils/patches.py apply chromium_src patches
+
+      - name: Apply Domain Substitution
+        shell: pwsh
+        run: |
+          Write-Host "Applying domain substitutions..."
+          python utils/domain_substitution.py apply -r domain_regex.list -f domain_substitution.list -c build/domsubcache.tar.gz chromium_src
+
+      - name: Fetch Clang Toolchain
+        shell: pwsh
+        run: |
+          Write-Host "Fetching LLVM/Clang compiler toolchain..."
+          python chromium_src/tools/clang/scripts/update.py
+
+      - name: Configure GN Build Args
+        shell: pwsh
+        run: |
+          Write-Host "Setting up out/Default/args.gn..."
+          mkdir -p chromium_src/out/Default
+          Copy-Item flags.gn -Destination chromium_src/out/Default/args.gn
+          Set-Location chromium_src
+          gn gen out/Default
+
+      - name: Compile ChromiumAir Targets
+        shell: pwsh
+        run: |
+          Set-Location chromium_src
+          Write-Host "Starting compilation of chrome and mini_installer..."
+          autoninja -C out/Default chrome mini_installer
+
+      - name: Package Output Binaries
+        shell: pwsh
+        run: |
+          $outDir = "chromium_src\out\Default"
+          $distDir = "dist\ChromiumAir"
+          New-Item -ItemType Directory -Path $distDir -Force | Out-Null
+
+          Write-Host "Assembling portable distribution in $distDir..."
+          $filesToCopy = @(
+            "chrome.exe",
+            "chrome.dll",
+            "chrome_elf.dll",
+            "chrome_100_percent.pak",
+            "chrome_200_percent.pak",
+            "resources.pak",
+            "icudtl.dat",
+            "v8_context_snapshot.bin",
+            "d3dcompiler_47.dll",
+            "dxcompiler.dll",
+            "dxil.dll",
+            "vk_swiftshader.dll",
+            "vk_swiftshader_icd.json",
+            "vulkan-1.dll"
+          )
+          foreach ($file in $filesToCopy) {
+            $srcPath = "$outDir\$file"
+            if (Test-Path $srcPath) {
+              Copy-Item $srcPath -Destination $distDir
+            }
+          }
+          if (Test-Path "$outDir\locales") {
+            Copy-Item "$outDir\locales" -Destination "$distDir\locales" -Recurse
+          }
+          if (Test-Path "$outDir\MEIPreload") {
+            Copy-Item "$outDir\MEIPreload" -Destination "$distDir\MEIPreload" -Recurse
+          }
+
+          Write-Host "Creating zip package..."
+          Compress-Archive -Path "$distDir\*" -DestinationPath "ChromiumAir-Windows-x64-AVX2.zip" -Force
+
+          if (Test-Path "$outDir\mini_installer.exe") {
+            Write-Host "Found mini_installer.exe, copying as installer..."
+            Copy-Item "$outDir\mini_installer.exe" -Destination "ChromiumAir-Installer-x64-AVX2.exe"
+          }
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ChromiumAir-Windows-x64-AVX2
+          path: |
+            ChromiumAir-Windows-x64-AVX2.zip
+            ChromiumAir-Installer-x64-AVX2.exe
+          retention-days: 14
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.upload_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: ChromiumAir ${{ inputs.release_tag }} (AVX2/FMA Comet Lake)
+          body: |
+            ## 🚀 ChromiumAir Release ${{ inputs.release_tag }}
+            
+            Ultra-fast, stripped-down Chromium build fine-tuned for high refresh displays and modern Intel architectures.
+
+            ### ✨ Key Features Included:
+            * **Architecture:** Tailored for **Intel Core i3-10100F (Comet Lake)** and modern x64 CPUs with full **AVX2 + FMA3** acceleration and `-O3` compiler optimization.
+            * **Display:** **Native 165 Hz / High Refresh Rates preserved**.
+            * **Classic Tabs:** Restored pre-2022 attached trapezoidal tabs (Supermium layout geometry, 30px height, instant zero-IO rendering).
+            * **Adblock in Core:** Built-in **uBlock Origin 1.75.0** as a native trusted component with CNAME DNS uncloaking. Preloaded with active Russian & Tracking filter lists.
+            * **Extensions:** **Manifest V2 preserved** + Chrome Web Store proxy support for seamless extension downloads.
+            * **Privacy:** Private Google search without omnibox tracking, plus Canvas/Audio/Media fingerprinting noise tokens.
+            * **Instant Startup:** Disabled telemetry, update nags, first-run wizards, and enabled lazy tab restore.
+
+            ### 📦 Downloads:
+            - **`ChromiumAir-Windows-x64-AVX2.zip`**: Portable build (unzip and launch `chrome.exe`).
+            - **`ChromiumAir-Installer-x64-AVX2.exe`**: Self-extracting Windows installer.
+          files: |
+            ChromiumAir-Windows-x64-AVX2.zip
+            ChromiumAir-Installer-x64-AVX2.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
