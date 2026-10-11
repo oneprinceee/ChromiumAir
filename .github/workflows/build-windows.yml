@@ -87,8 +87,16 @@ jobs:
         run: |
           Write-Host "Unpacking Chromium sources into chromium_src..."
           python utils/downloads.py unpack -i downloads.ini -c download_cache chromium_src
-          Write-Host "Unpacking uBlock Origin into third_party/ublock..."
-          python utils/downloads.py unpack -i deps.ini -c download_cache chromium_src
+
+          Write-Host "Unpacking uBlock Origin into chromium_src/third_party/ublock..."
+          New-Item -ItemType Directory -Path "ublock_temp" -Force | Out-Null
+          Expand-Archive -Path "download_cache\ublock-origin-1.75.0.zip" -DestinationPath "ublock_temp" -Force
+          if (Test-Path "ublock_temp\uBlock0.chromium") {
+            Move-Item -Path "ublock_temp\uBlock0.chromium" -Destination "chromium_src\third_party\ublock" -Force
+          } else {
+            Move-Item -Path "ublock_temp" -Destination "chromium_src\third_party\ublock" -Force
+          }
+          Remove-Item -Path "ublock_temp" -Recurse -Force -ErrorAction SilentlyContinue
 
       - name: Prune Google Binaries
         shell: pwsh
