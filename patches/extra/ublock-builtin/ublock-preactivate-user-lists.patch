@@ -64,11 +64,11 @@
  		"contentURL": [],
  		"^cdnURLs": [
  			"https://ublockorigin.github.io/uAssetsCDN/filters/annoyances.min.txt",
-@@ -620,6 +628,7 @@
+@@ -863,6 +869,6 @@
+ 	"RUS-0": {
+ 		"content": "filters",
  		"group": "regions",
- 		"title": "RU, UKR, BE: RU AdList",
- 		"tags": "regions",
+ 		"parent": "🇷🇺ru 🇺🇦ua 🇺🇿uz 🇰🇿kz: RU AdList",
+-		"off": true,
 +		"off": false,
- 		"contentURL": [
- 			"assets/thirdparties/easylist-downloads.adblockplus.org/ruadlist.txt"
- 		]
+ 		"title": "🇷🇺ru 🇺🇦ua 🇺🇿uz 🇰🇿kz: RU AdList",
