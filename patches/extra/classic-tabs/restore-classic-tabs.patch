@@ -1,5 +1,3 @@
-diff --git a/chrome/browser/ui/layout_constants.cc b/chrome/browser/ui/layout_constants.cc
-index b2c1709..9f6702a 100644
 --- a/chrome/browser/ui/layout_constants.cc
 +++ b/chrome/browser/ui/layout_constants.cc
 @@ -158,13 +158,13 @@ int GetLayoutConstant(LayoutConstant constant) {
@@ -17,11 +15,9 @@ index b2c1709..9f6702a 100644
        return touch_ui ? 24 : 20;
      case LayoutConstant::kTabPreTitlePadding:
        return 8;
-diff --git a/chrome/browser/ui/views/tabs/tab_style_views.cc b/chrome/browser/ui/views/tabs/tab_style_views.cc
-index 44a60df..3dd5d74 100644
 --- a/chrome/browser/ui/views/tabs/tab_style_views.cc
 +++ b/chrome/browser/ui/views/tabs/tab_style_views.cc
-@@ -213,8 +213,8 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
+@@ -213,19 +213,14 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
  
    // Calculate the corner radii. Note that corner radius is based on original
    // tab width (in DIP), not our new, scaled-and-aligned bounds.
@@ -33,7 +29,7 @@ index 44a60df..3dd5d74 100644
  
    const float separator_overlap = (tab_style()->GetSeparatorMargins().width() +
                                     tab_style()->GetSeparatorSize().width()) *
-@@ -222,12 +222,7 @@ SkPath TabStyleViewsImpl::GetPath(TabStyle::PathType path_type,
+       scale;
  
    // Selected, hover, and inactive tab fills are a detached squarcle tab.
 -  if ((path_type == TabStyle::PathType::kFill &&
@@ -45,11 +41,9 @@ index 44a60df..3dd5d74 100644
      float top_left_corner_radius = content_corner_radius;
      float top_right_corner_radius = content_corner_radius;
      float bottom_left_corner_radius = content_corner_radius;
-diff --git a/chrome/browser/ui/views/tabs/tab_search_button.cc b/chrome/browser/ui/views/tabs/tab_search_button.cc
-index c62091a..438f68d 100644
 --- a/chrome/browser/ui/views/tabs/tab_search_button.cc
 +++ b/chrome/browser/ui/views/tabs/tab_search_button.cc
-@@ -21,8 +21,8 @@
+@@ -21,6 +21,6 @@
  #include "ui/views/view_class_properties.h"
  
  namespace {
@@ -58,5 +52,3 @@ index c62091a..438f68d 100644
 +constexpr int kCRTabSearchCornerRadius = 16;
 +constexpr int kCRTabSearchFlatCornerRadius = 0;
  }  // namespace
- 
- TabSearchButton::TabSearchButton(
