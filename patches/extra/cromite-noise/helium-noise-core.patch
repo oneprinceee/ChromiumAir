@@ -1511,13 +1511,3 @@
      {ContentSettingsType::SUSPICIOUS_SITE_WARNING_DATA, nullptr},
  });
  
---- a/components/content_settings/core/common/content_settings_uma_constants.h
-+++ b/components/content_settings/core/common/content_settings_uma_constants.h
-@@ -20,6 +20,7 @@ namespace content_settings {
- // LINT.IfChange(kContentSettingsTypeToHistogramValue)
- inline constexpr auto kContentSettingsTypeToHistogramValue =
-     base::MakeFixedFlatMap<ContentSettingsType, int>({
-+        {ContentSettingsType::HELIUM_NOISE, 1000},
-         // Cookies was previously logged to bucket 0, which is not a valid
-         // bucket
-         // for linear histograms.
