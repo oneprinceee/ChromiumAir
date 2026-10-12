@@ -1501,13 +1501,3 @@
  }
  
  void ContentSettingsRegistry::Register(
---- a/chrome/browser/ui/webui/settings/site_settings_helper.cc
-+++ b/chrome/browser/ui/webui/settings/site_settings_helper.cc
-@@ -262,6 +262,7 @@ constexpr auto kContentSettingsTypeGroup
-     {ContentSettingsType::SUSPICIOUS_NOTIFICATION_SHOW_ORIGINAL, nullptr},
-     {ContentSettingsType::LOCAL_NETWORK_ACCESS, nullptr},
-     {ContentSettingsType::SUB_APPS_WITHOUT_PROMPTS, nullptr},
-+    {ContentSettingsType::HELIUM_NOISE, nullptr},
-     {ContentSettingsType::SUSPICIOUS_SITE_WARNING_DATA, nullptr},
- });
- 
