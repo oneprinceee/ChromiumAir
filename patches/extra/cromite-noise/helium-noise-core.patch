@@ -1483,14 +1483,10 @@
  
 --- a/components/content_settings/core/browser/content_settings_registry.cc
 +++ b/components/content_settings/core/browser/content_settings_registry.cc
-@@ -851,6 +851,17 @@ void ContentSettingsRegistry::Init() {
-            /*allowlisted_primary_schemes=*/{},
-            /*valid_settings=*/{CONTENT_SETTING_ALLOW, CONTENT_SETTING_BLOCK},
-            WebsiteSettingsInfo::TOP_ORIGIN_ONLY_SCOPE,
-            WebsiteSettingsRegistry::DESKTOP,
-            ContentSettingsInfo::INHERIT_IN_INCOGNITO,
-            PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_AND_INSECURE_ORIGINS);
-+
+@@ -99,6 +99,17 @@ void ContentSettingsRegistry::Init() {
+       ContentSettingsInfo::INHERIT_IN_INCOGNITO,
+       PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_AND_INSECURE_ORIGINS);
+
 +  Register(ContentSettingsType::HELIUM_NOISE, "helium-noise",
 +           CONTENT_SETTING_ALLOW, WebsiteSettingsInfo::UNSYNCABLE,
 +           /*allowlisted_primary_schemes=*/{},
@@ -1501,6 +1497,6 @@
 +               WebsiteSettingsRegistry::PLATFORM_ANDROID,
 +           ContentSettingsInfo::DONT_INHERIT_IN_INCOGNITO,
 +           PermissionSettingsInfo::EXCEPTIONS_ON_SECURE_AND_INSECURE_ORIGINS);
- }
- 
- void ContentSettingsRegistry::Register(
++
+   Register(ContentSettingsType::IMAGES, "images", CONTENT_SETTING_ALLOW,
+            WebsiteSettingsInfo::SYNCABLE,
