@@ -98,6 +98,28 @@ jobs:
           }
           Remove-Item -Path "ublock_temp" -Recurse -Force -ErrorAction SilentlyContinue
 
+      - name: Pre-activate uBlock User Lists
+        shell: pwsh
+        run: |
+          Write-Host "Configuring uBlock user lists (RU AdList, Cookie notices, Annoyances, AdGuard)..."
+          python -c @"
+          import json, os
+          target = os.path.join('chromium_src', 'third_party', 'ublock', 'assets', 'assets.json')
+          if os.path.exists(target):
+              with open(target, 'r', encoding='utf-8') as f:
+                  data = json.load(f)
+              lists = ['RUS-0', 'easylist-cookies', 'easylist-annoyances', 'ublock-annoyances', 'adguard-tracking-protection', 'easylist-newsletters', 'easylist-notifications']
+              for k in lists:
+                  if k in data and isinstance(data[k], dict):
+                      data[k]['off'] = False
+                      print(f'Activated list: {k}')
+              with open(target, 'w', encoding='utf-8') as f:
+                  json.dump(data, f, indent=2, ensure_ascii=False)
+              print('uBlock assets.json successfully updated!')
+          else:
+              print('Warning: assets.json not found')
+          "@
+
       - name: Prune Google Binaries
         shell: pwsh
         run: |

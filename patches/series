@@ -124,7 +124,6 @@ extra/ublock-builtin/ublock-setup-sources.patch
 extra/ublock-builtin/ublock-install-as-component.patch
 extra/ublock-builtin/ublock-reconfigure-defaults.patch
 extra/ublock-builtin/ublock-dns-uncloaking.patch
-extra/ublock-builtin/ublock-preactivate-user-lists.patch
 
 # Stage 3: Chrome Web Store Proxy & Helium Services
 extra/cws-and-search/services-prefs.patch
