@@ -141,4 +141,3 @@ extra/cromite-noise/helium-noise-hardware-concurrency.patch
 # Stage 5: Windows Build Fixes
 extra/windows/windows-fix-python.patch
 extra/windows/windows-fix-rc-terminating-error.patch
-extra/windows/windows-sdk-version-detect.patch

@@ -173,7 +173,27 @@ jobs:
       - name: Configure GN Build Args
         shell: pwsh
         run: |
-          Write-Host "Setting up out/Default/args.gn..."
+          Write-Host "Configuring Windows SDK version and out/Default/args.gn..."
+          python -c @"
+          import os, glob
+          include_dir = os.path.expandvars(r'%ProgramFiles(x86)%\Windows Kits\10\Include')
+          sdk_ver = None
+          if os.path.exists(include_dir):
+              for cand in ['10.0.26100.0', '10.0.22621.0', '10.0.22000.0', '10.0.20348.0', '10.0.19041.0']:
+                  if os.path.exists(os.path.join(include_dir, cand)):
+                      sdk_ver = cand
+                      break
+          print(f'Detected installed Windows SDK version: {sdk_ver}')
+          if sdk_ver:
+              for fpath in [os.path.join('chromium_src', 'build', 'vs_toolchain.py'), os.path.join('chromium_src', 'build', 'toolchain', 'win', 'setup_toolchain.py')]:
+                  if os.path.exists(fpath):
+                      with open(fpath, 'r', encoding='utf-8') as f:
+                          content = f.read()
+                      new_content = content.replace(\"SDK_VERSION = '10.0.28000.0'\", f\"SDK_VERSION = '{sdk_ver}'\")
+                      with open(fpath, 'w', encoding='utf-8') as f:
+                          f.write(new_content)
+                      print(f'Updated SDK_VERSION to {sdk_ver} in {fpath}')
+          "@
           New-Item -ItemType Directory -Path "chromium_src/out/Default" -Force | Out-Null
           Copy-Item flags.gn -Destination chromium_src/out/Default/args.gn
           Set-Location chromium_src
