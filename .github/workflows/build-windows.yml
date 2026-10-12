@@ -155,11 +155,13 @@ jobs:
           Write-Host "Applying ChromiumAir patch series..."
           python utils/patches.py apply chromium_src patches
 
-      - name: Fetch Clang Toolchain
+      - name: Fetch Clang and Rust Toolchains
         shell: pwsh
         run: |
           Write-Host "Fetching LLVM/Clang compiler toolchain..."
           python chromium_src/tools/clang/scripts/update.py
+          Write-Host "Fetching Rust toolchain..."
+          python chromium_src/tools/rust/update_rust.py
 
       - name: Apply Domain Substitution
         shell: pwsh
