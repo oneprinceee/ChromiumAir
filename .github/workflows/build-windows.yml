@@ -177,7 +177,7 @@ jobs:
           New-Item -ItemType Directory -Path "chromium_src/out/Default" -Force | Out-Null
           Copy-Item flags.gn -Destination chromium_src/out/Default/args.gn
           Set-Location chromium_src
-          & "$env:USERPROFILE\depot_tools\gn.exe" gen out/Default
+          & "$env:USERPROFILE\depot_tools\gn.exe" gen out/Default --script-executable=python
 
       - name: Compile ChromiumAir Targets
         shell: pwsh
