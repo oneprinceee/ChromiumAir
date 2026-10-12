@@ -136,6 +136,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Applying domain substitutions..."
+          New-Item -ItemType Directory -Path "build" -Force | Out-Null
           python utils/domain_substitution.py apply -r domain_regex.list -f domain_substitution.list -c build/domsubcache.tar.gz chromium_src
 
       - name: Fetch Clang Toolchain
