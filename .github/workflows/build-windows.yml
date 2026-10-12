@@ -70,10 +70,31 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Cloning depot_tools..."
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $env:USERPROFILE\depot_tools
-          "$env:USERPROFILE\depot_tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Host "Initializing depot_tools environment..."
-          & "$env:USERPROFILE\depot_tools\update_depot_tools.bat"
+          $depotPath = "$env:USERPROFILE\depot_tools"
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $depotPath
+          $depotPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+          Write-Host "Fetching prebuilt gn.exe and ninja.exe..."
+          python -c @"
+          import urllib.request, zipfile, io, os
+
+          depot = os.path.expanduser('~/depot_tools')
+          headers = {'User-Agent': 'Mozilla/5.0'}
+
+          # Fetch gn.exe
+          req = urllib.request.Request('https://chrome-infra-packages.appspot.com/dl/gn/gn/windows-amd64/+/latest', headers=headers)
+          with urllib.request.urlopen(req) as resp:
+              with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
+                  z.extract('gn.exe', depot)
+          print('Extracted gn.exe to', depot)
+
+          # Fetch ninja.exe
+          req = urllib.request.Request('https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/ninja/windows-amd64/+/latest', headers=headers)
+          with urllib.request.urlopen(req) as resp:
+              with zipfile.ZipFile(io.BytesIO(resp.read())) as z:
+                  z.extract('ninja.exe', depot)
+          print('Extracted ninja.exe to', depot)
+          "@
 
       - name: Retrieve Sources (Chromium 155 & uBlock Origin)
         shell: pwsh
@@ -154,14 +175,14 @@ jobs:
           New-Item -ItemType Directory -Path "chromium_src/out/Default" -Force | Out-Null
           Copy-Item flags.gn -Destination chromium_src/out/Default/args.gn
           Set-Location chromium_src
-          & "$env:USERPROFILE\depot_tools\gn.bat" gen out/Default
+          & "$env:USERPROFILE\depot_tools\gn.exe" gen out/Default
 
       - name: Compile ChromiumAir Targets
         shell: pwsh
         run: |
           Set-Location chromium_src
           Write-Host "Starting compilation of chrome and mini_installer..."
-          & "$env:USERPROFILE\depot_tools\autoninja.bat" -C out/Default chrome mini_installer
+          & "$env:USERPROFILE\depot_tools\ninja.exe" -C out/Default chrome mini_installer
 
       - name: Package Output Binaries
         shell: pwsh
