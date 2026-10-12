@@ -132,6 +132,7 @@ extra/cws-and-search/proxy-extension-downloads.patch
 # Stage 4: Anti-Fingerprinting (Safe 165 Hz, Canvas & Audio Noise Tokens, WebGL spoofing, Media & Mouse wheel)
 extra/cromite-noise/prevent-mouse-wheel-fingerprinting-on-windows.patch
 extra/cromite-noise/media-fingerprinting-mitigations.patch
+extra/cromite-noise/flags-setup.patch
 extra/cromite-noise/helium-noise-core.patch
 extra/cromite-noise/helium-noise-canvas.patch
 extra/cromite-noise/helium-noise-audio.patch

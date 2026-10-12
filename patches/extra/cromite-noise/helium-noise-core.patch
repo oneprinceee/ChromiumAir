@@ -1521,13 +1521,3 @@
          // Cookies was previously logged to bucket 0, which is not a valid
          // bucket
          // for linear histograms.
---- a/tools/metrics/histograms/enums.xml
-+++ b/tools/metrics/histograms/enums.xml
-@@ -2417,6 +2417,7 @@ Called by update_net_error_codes.py.-->
-   <int value="145" label="Add Sub Apps without prompts"/>
-   <int value="146" label="Inline cue menu"/>
-   <int value="147" label="Suspicious site warning data"/>
-+  <int value="1000" label="Helium Noise"/>
- </enum>
- 
- <!-- LINT.ThenChange(//components/content_settings/core/common/content_settings_uma_constants.h:kContentSettingsTypeToHistogramValue) -->
