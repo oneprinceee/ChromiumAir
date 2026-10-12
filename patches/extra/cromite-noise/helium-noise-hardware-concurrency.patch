@@ -1,6 +1,8 @@
 --- a/chrome/browser/helium_flag_choices.h
 +++ b/chrome/browser/helium_flag_choices.h
-@@ -35,6 +35,8 @@ constexpr const char kMiddleClickAutoscr
+@@ -8,7 +8,9 @@
+ namespace helium {
+ 
  constexpr const char kHeliumNoiseCommandLine[] = "helium-noise";
  constexpr const char kHeliumNoiseCanvasCommandLine[] = "helium-noise-canvas";
  constexpr const char kHeliumNoiseAudioCommandLine[] = "helium-noise-audio";
@@ -8,7 +10,6 @@
 +    "helium-noise-hw-concurrency";
  
  }  // namespace helium
- 
 --- a/chrome/browser/helium_flag_entries.h
 +++ b/chrome/browser/helium_flag_entries.h
 @@ -43,6 +43,11 @@
