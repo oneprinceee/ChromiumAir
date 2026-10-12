@@ -132,18 +132,18 @@ jobs:
           Write-Host "Applying ChromiumAir patch series..."
           python utils/patches.py apply chromium_src patches
 
+      - name: Fetch Clang Toolchain
+        shell: pwsh
+        run: |
+          Write-Host "Fetching LLVM/Clang compiler toolchain..."
+          python chromium_src/tools/clang/scripts/update.py
+
       - name: Apply Domain Substitution
         shell: pwsh
         run: |
           Write-Host "Applying domain substitutions..."
           New-Item -ItemType Directory -Path "build" -Force | Out-Null
           python utils/domain_substitution.py apply -r domain_regex.list -f domain_substitution.list -c build/domsubcache.tar.gz chromium_src
-
-      - name: Fetch Clang Toolchain
-        shell: pwsh
-        run: |
-          Write-Host "Fetching LLVM/Clang compiler toolchain..."
-          python chromium_src/tools/clang/scripts/update.py
 
       - name: Configure GN Build Args
         shell: pwsh
