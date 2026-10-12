@@ -17,7 +17,7 @@
  #include "build/chromeos_buildflags.h"
 --- /dev/null
 +++ b/chrome/browser/helium_flag_choices.h
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,17 @@
 +// Copyright 2025 The Helium Authors
 +// You can use, redistribute, and/or modify this source code under
 +// the terms of the GPL-3.0 license that can be found in the LICENSE file.
@@ -27,20 +27,42 @@
 +
 +namespace helium {
 +
++constexpr const char kHeliumNoiseCommandLine[] = "helium-noise";
++constexpr const char kHeliumNoiseCanvasCommandLine[] = "helium-noise-canvas";
++constexpr const char kHeliumNoiseAudioCommandLine[] = "helium-noise-audio";
++constexpr const char kHeliumNoiseCpuCoresCommandLine[] = "helium-noise-hw-concurrency";
++
 +}  // namespace helium
 +
 +#endif /* CHROME_BROWSER_HELIUM_FLAG_CHOICES_H_ */
 --- /dev/null
 +++ b/chrome/browser/helium_flag_entries.h
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,28 @@
 +// Copyright 2025 The Helium Authors
 +// You can use, redistribute, and/or modify this source code under
 +// the terms of the GPL-3.0 license that can be found in the LICENSE file.
 +
 +#ifndef CHROME_BROWSER_HELIUM_FLAG_ENTRIES_H_
 +#define CHROME_BROWSER_HELIUM_FLAG_ENTRIES_H_
-+    // core
-+    // core/network
-+    // ui
-+    // platform
++    {helium::kHeliumNoiseCommandLine, "Helium Noise",
++     "Helium's anti-fingerprinting functionality. Adds insignificant noise to "
++     "various features to deceive fingerprinting scripts. Enabled by default, "
++     "must be enabled for other anti-fingerprinting features to work. Helium "
++     "flag.",
++     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoise)},
++    {helium::kHeliumNoiseCanvasCommandLine,
++     "[Helium Noise] Canvas pixel noising",
++     "Adds insignificant noise to canvas pixels during readback to deceive "
++     "canvas-based fingerprinting. Helium flag.",
++     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCanvas)},
++    {helium::kHeliumNoiseAudioCommandLine,
++     "[Helium Noise] Jitter audio context data",
++     "Adds insignificant jitter to audio data to deceive AudioContext-based "
++     "fingerprinting. Helium flag.",
++     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseAudio)},
++    {helium::kHeliumNoiseCpuCoresCommandLine,
++     "[Helium Noise] Randomize number of CPU cores",
++     "Randomizes the number of cores returned by "
++     "`navigator.hardwareConcurrency` in a reasonable range. Helium flag.",
++     kOsAll, FEATURE_VALUE_TYPE(blink::features::kHeliumNoiseCpuCores)},
 +#endif  // CHROME_BROWSER_HELIUM_FLAG_ENTRIES_H_
