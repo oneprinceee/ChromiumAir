@@ -165,8 +165,13 @@ jobs:
           
           Write-Host "Ensuring clang-format binary is mapped to buildtools/win-format..."
           New-Item -ItemType Directory -Path "chromium_src/buildtools/win-format" -Force | Out-Null
-          if (Test-Path "chromium_src/third_party/llvm-build/Release+Asserts/bin/clang-format.exe") {
-            Copy-Item "chromium_src/third_party/llvm-build/Release+Asserts/bin/clang-format.exe" -Destination "chromium_src/buildtools/win-format/clang-format.exe" -Force
+          $cfSrc = "chromium_src/third_party/llvm-build/Release+Asserts/bin/clang-format.exe"
+          $cfDst = "chromium_src/buildtools/win-format/clang-format.exe"
+          if (Test-Path $cfSrc) {
+            Copy-Item $cfSrc -Destination $cfDst -Force
+          } else {
+            Write-Host "Fetching clang-format binary from official mirror..."
+            Invoke-WebRequest -Uri "https://github.com/angular/clang-format/raw/master/bin/win32/clang-format.exe" -OutFile $cfDst
           }
 
       - name: Apply Domain Substitution
