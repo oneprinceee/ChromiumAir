@@ -1,3 +1,5 @@
+diff --git a/a/chrome/installer/setup/BUILD.gn b/b/chrome/installer/setup/BUILD.gn
+index e7e695f..8ef2f67 100644
 --- a/chrome/installer/setup/BUILD.gn
 +++ b/chrome/installer/setup/BUILD.gn
 @@ -43,7 +43,6 @@ if (is_win) {
@@ -8,6 +10,8 @@
        "//services/webnn:buildflags",
        "//url",
      ]
+diff --git a/a/chrome/installer/setup/uninstall.cc b/b/chrome/installer/setup/uninstall.cc
+index 823e20d..a0e054f 100644
 --- a/chrome/installer/setup/uninstall.cc
 +++ b/chrome/installer/setup/uninstall.cc
 @@ -67,8 +67,6 @@
@@ -19,23 +23,12 @@
  
  using base::win::RegKey;
  
-@@ -106,17 +104,6 @@ void ProcessChromeWorkItems(const Instal
- }
+@@ -936,7 +934,7 @@ InstallStatus UninstallProduct(const ModifyParams& modify_params,
+   // Chrome is not in use so lets uninstall Chrome by deleting various files
+   // and registry entries. Here we will just make best effort and keep going
+   // in case of errors.
+-  ClearRlzProductState();
++  // ClearRlzProductState();
  
- void ClearRlzProductState() {
--  const rlz_lib::AccessPoint points[] = {rlz_lib::CHROME_OMNIBOX,
--                                         rlz_lib::CHROME_HOME_PAGE,
--                                         rlz_lib::CHROME_APP_LIST};
--
--  rlz_lib::ClearProductState(rlz_lib::CHROME, points);
--
--  // If chrome has been reactivated, clear all events for this brand as well.
--  std::wstring reactivation_brand_wide;
--  if (GoogleUpdateSettings::GetReactivationBrand(&reactivation_brand_wide)) {
--    std::string reactivation_brand(base::WideToASCII(reactivation_brand_wide));
--    rlz_lib::SupplementaryBranding branding(reactivation_brand.c_str());
--    rlz_lib::ClearProductState(rlz_lib::CHROME, points);
--  }
- }
+   auto_launch_util::DisableStartAtLogin();
  
- // Removes all files from the installer directory. Returns false in case of an
