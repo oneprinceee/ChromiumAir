@@ -19,7 +19,7 @@
        deps += [
 --- a/rlz/buildflags/buildflags.gni
 +++ b/rlz/buildflags/buildflags.gni
-@@ -6,7 +6,7 @@ import("//build/config/chrome_build.gni"
+@@ -6,7 +6,7 @@ import("//build/config/chrome_build.gni")
  
  # Whether we are using the rlz library or not.  Platforms like Android send
  # rlz codes for searches but do not use the library.
@@ -28,3 +28,14 @@
  
  declare_args() {
    enable_rlz = is_chrome_branded && enable_rlz_support
+--- a/rlz/BUILD.gn
++++ b/rlz/BUILD.gn
+@@ -206,7 +206,7 @@ if (enable_rlz_support) {
+   }
+ }
+ 
+-if (!is_ios && !is_android) {
++if (enable_rlz_support && !is_ios && !is_android) {
+   executable("rlz_id") {
+     sources = [ "examples/rlz_id.cc" ]
+     deps = [
