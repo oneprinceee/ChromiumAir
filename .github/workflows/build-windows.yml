@@ -162,6 +162,12 @@ jobs:
           python chromium_src/tools/clang/scripts/update.py
           Write-Host "Fetching Rust toolchain..."
           python chromium_src/tools/rust/update_rust.py
+          
+          Write-Host "Ensuring clang-format binary is mapped to buildtools/win-format..."
+          New-Item -ItemType Directory -Path "chromium_src/buildtools/win-format" -Force | Out-Null
+          if (Test-Path "chromium_src/third_party/llvm-build/Release+Asserts/bin/clang-format.exe") {
+            Copy-Item "chromium_src/third_party/llvm-build/Release+Asserts/bin/clang-format.exe" -Destination "chromium_src/buildtools/win-format/clang-format.exe" -Force
+          }
 
       - name: Apply Domain Substitution
         shell: pwsh
