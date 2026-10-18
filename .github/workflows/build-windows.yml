@@ -174,6 +174,14 @@ jobs:
             Invoke-WebRequest -Uri "https://github.com/angular/clang-format/raw/master/bin/win32/clang-format.exe" -OutFile $cfDst
           }
 
+          Write-Host "Ensuring Node.js binary is available for WebUI compilation in third_party/node/win..."
+          New-Item -ItemType Directory -Path "chromium_src/third_party/node/win" -Force | Out-Null
+          $nodeDst = "chromium_src/third_party/node/win/node.exe"
+          if (-not (Test-Path $nodeDst)) {
+            Write-Host "Fetching node.exe (v24.12.0 x64)..."
+            Invoke-WebRequest -Uri "https://nodejs.org/dist/v24.12.0/win-x64/node.exe" -OutFile $nodeDst
+          }
+
       - name: Apply Domain Substitution
         shell: pwsh
         run: |
