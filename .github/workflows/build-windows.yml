@@ -197,6 +197,8 @@ jobs:
           New-Item -ItemType Directory -Path $tsExtract -Force | Out-Null
           tar -xzf $tsPkg -C $tsExtract
           Copy-Item "$tsExtract/package/lib/*" -Destination $tsLibDir -Recurse -Force
+          # Ensure Node treats tsc.js as CommonJS instead of inheriting root package.json "type": "module"
+          '{"type": "commonjs"}' | Set-Content -Path "chromium_src/third_party/typescript/package.json" -Encoding ascii
 
           Write-Host "Compiling native tsc.exe wrapper for Windows..."
           $csSource = (Resolve-Path "utils/tsc_wrapper.cs").Path
