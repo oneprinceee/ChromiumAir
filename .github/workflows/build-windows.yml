@@ -237,7 +237,15 @@ jobs:
             & "$gperfDst" --version
           }
 
-          Write-Host "Ensuring llvm-libclang Python bindings are available for V8 metagen in third_party/llvm-libclang..."
+          Write-Host "Ensuring llvm-libclang binaries and Python bindings are available for V8 metagen in third_party/llvm-libclang..."
+          $clangBinDir = "chromium_src/third_party/llvm-libclang/bin"
+          New-Item -ItemType Directory -Path $clangBinDir -Force | Out-Null
+          $libclangSrc = "chromium_src/third_party/llvm-build/Release+Asserts/bin/libclang.dll"
+          $libclangDst = "$clangBinDir/libclang.dll"
+          if (Test-Path $libclangSrc) {
+            Write-Host "Copying libclang.dll from LLVM toolchain..."
+            Copy-Item $libclangSrc -Destination $libclangDst -Force
+          }
           $clangPyDir = "chromium_src/third_party/llvm-libclang/bindings/python/clang"
           New-Item -ItemType Directory -Path $clangPyDir -Force | Out-Null
           if (-not (Test-Path "$clangPyDir/cindex.py")) {
