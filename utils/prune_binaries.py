@@ -44,7 +44,6 @@ CONTINGENT_PATHS = (
     'third_party/typescript/linux-amd64/',
     'third_party/typescript/mac-amd64/',
     'third_party/typescript/mac-arm64/',
-    'third_party/typescript/windows-amd64/',
     'third_party/updater/chrome_linux64/',
     'third_party/updater/chrome_linux64_sans_iid/cipd/',
     'third_party/updater/chromium_linux64/',

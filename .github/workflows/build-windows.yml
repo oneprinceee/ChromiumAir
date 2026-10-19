@@ -182,6 +182,51 @@ jobs:
             Invoke-WebRequest -Uri "https://nodejs.org/dist/v24.12.0/win-x64/node.exe" -OutFile $nodeDst
           }
 
+          Write-Host "Ensuring TypeScript toolchain (tsc.exe and lib definitions) is available for tsgo in third_party/typescript..."
+          $tsLibDir = "chromium_src/third_party/typescript/windows-amd64/src/lib"
+          New-Item -ItemType Directory -Path $tsLibDir -Force | Out-Null
+          Write-Host "Fetching TypeScript 6.0.2 package from npm..."
+          $tsPkg = "$env:TEMP/typescript-6.0.2.tgz"
+          if (-not (Test-Path $tsPkg)) {
+            Invoke-WebRequest -Uri "https://registry.npmjs.org/typescript/-/typescript-6.0.2.tgz" -OutFile $tsPkg
+          }
+          $tsExtract = "$env:TEMP/ts_extract"
+          New-Item -ItemType Directory -Path $tsExtract -Force | Out-Null
+          tar -xzf $tsPkg -C $tsExtract
+          Copy-Item "$tsExtract/package/lib/*" -Destination $tsLibDir -Recurse -Force
+
+          Write-Host "Compiling native tsc.exe wrapper for Windows..."
+          $wrapperCs = "$env:TEMP/tsc_wrapper.cs"
+          @'
+using System;
+using System.Diagnostics;
+using System.IO;
+
+class Program {
+    static int Main(string[] args) {
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        string tscJs = Path.Combine(baseDir, "tsc.js");
+        string nodeExe = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\node\win\node.exe"));
+        if (!File.Exists(nodeExe)) {
+            nodeExe = "node.exe";
+        }
+        ProcessStartInfo psi = new ProcessStartInfo();
+        psi.FileName = nodeExe;
+        psi.UseShellExecute = false;
+        psi.Arguments = "\"" + tscJs + "\"";
+        foreach (string arg in args) {
+            psi.Arguments += " \"" + arg.Replace("\"", "\\\"") + "\"";
+        }
+        using (Process p = Process.Start(psi)) {
+            p.WaitForExit();
+            return p.ExitCode;
+        }
+    }
+}
+'@ | Set-Content -Path $wrapperCs
+          & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /out:"$tsLibDir/tsc.exe" $wrapperCs
+          & "$tsLibDir/tsc.exe" --version
+
       - name: Apply Domain Substitution
         shell: pwsh
         run: |
