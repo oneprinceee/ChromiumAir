@@ -242,16 +242,19 @@ jobs:
           if (-not (Test-Path "$llvmLibclangDir/bin/libclang.dll")) {
             Write-Host "Fetching official rust-libclang bundle from Google Cloud Storage..."
             $libclangTar = "$env:TEMP/libclang.tar.xz"
-            curl.exe -f -sSL "https://commondatastorage.googleapis.com/chromium-browser-clang/Win/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-1-llvmorg-24-init-7747-g62397f8b.tar.xz" -o $libclangTar
+            curl.exe -f -sSL --connect-timeout 30 -m 300 "https://commondatastorage.googleapis.com/chromium-browser-clang/Win/rust-libclang-1edd55dcfcd573872c727fa3e086369a71661ee0-1-llvmorg-24-init-7747-g62397f8b.tar.xz" -o $libclangTar
+            Write-Host "Extracting rust-libclang bundle..."
             tar.exe -xf $libclangTar -C $llvmLibclangDir
             Remove-Item $libclangTar -Force -ErrorAction SilentlyContinue
+            Write-Host "libclang.dll status: $(Test-Path "$llvmLibclangDir/bin/libclang.dll")"
           }
           $clangPyDir = "$llvmLibclangDir/bindings/python/clang"
           New-Item -ItemType Directory -Path $clangPyDir -Force | Out-Null
           if (-not (Test-Path "$clangPyDir/cindex.py")) {
             Write-Host "Fetching cindex.py and __init__.py from official llvm-project mirror..."
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/llvm/llvm-project/main/clang/bindings/python/clang/cindex.py" -OutFile "$clangPyDir/cindex.py"
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/llvm/llvm-project/main/clang/bindings/python/clang/__init__.py" -OutFile "$clangPyDir/__init__.py"
+            curl.exe -f -sSL --connect-timeout 15 -m 60 "https://raw.githubusercontent.com/llvm/llvm-project/main/clang/bindings/python/clang/cindex.py" -o "$clangPyDir/cindex.py"
+            curl.exe -f -sSL --connect-timeout 15 -m 60 "https://raw.githubusercontent.com/llvm/llvm-project/main/clang/bindings/python/clang/__init__.py" -o "$clangPyDir/__init__.py"
+            Write-Host "cindex.py status: $(Test-Path "$clangPyDir/cindex.py")"
           }
 
       - name: Apply Domain Substitution
