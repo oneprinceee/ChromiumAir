@@ -31,7 +31,6 @@ CONTINGENT_PATHS = (
     'third_party/cpython3/',
     'third_party/dawn/third_party/ninja/',
     'third_party/dawn/tools/golang/',
-    'third_party/devtools-frontend/src/third_party/esbuild/',
     'third_party/devtools-frontend/src/third_party/rollup_libs/',
     'third_party/enterprise_companion/chromium_linux64/cipd/',
     'third_party/google-java-format/',

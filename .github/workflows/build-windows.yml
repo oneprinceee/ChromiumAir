@@ -206,6 +206,21 @@ jobs:
           & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /out:"$csTarget" "$csSource"
           & "$csTarget" --version
 
+          Write-Host "Ensuring esbuild.exe is available for DevTools bundling..."
+          $esbuildDir = "chromium_src/third_party/devtools-frontend/src/third_party/esbuild"
+          New-Item -ItemType Directory -Path $esbuildDir -Force | Out-Null
+          $esbuildDst = "$esbuildDir/esbuild.exe"
+          if (-not (Test-Path $esbuildDst)) {
+            Write-Host "Fetching esbuild binary from npm @esbuild/win32-x64..."
+            $esbuildPkg = "$env:TEMP/esbuild.tgz"
+            Invoke-WebRequest -Uri "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.28.2.tgz" -OutFile $esbuildPkg
+            $esExtract = "$env:TEMP/esbuild_extract"
+            New-Item -ItemType Directory -Path $esExtract -Force | Out-Null
+            tar -xzf $esbuildPkg -C $esExtract
+            Copy-Item "$esExtract/package/esbuild.exe" -Destination $esbuildDst -Force
+            & "$esbuildDst" --version
+          }
+
       - name: Apply Domain Substitution
         shell: pwsh
         run: |
