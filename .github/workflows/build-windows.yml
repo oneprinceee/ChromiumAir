@@ -12,6 +12,9 @@ on:
         required: true
         type: boolean
         default: true
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -197,33 +200,8 @@ jobs:
 
           Write-Host "Compiling native tsc.exe wrapper for Windows..."
           $wrapperCs = "$env:TEMP/tsc_wrapper.cs"
-          @'
-using System;
-using System.Diagnostics;
-using System.IO;
-
-class Program {
-    static int Main(string[] args) {
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        string tscJs = Path.Combine(baseDir, "tsc.js");
-        string nodeExe = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\..\node\win\node.exe"));
-        if (!File.Exists(nodeExe)) {
-            nodeExe = "node.exe";
-        }
-        ProcessStartInfo psi = new ProcessStartInfo();
-        psi.FileName = nodeExe;
-        psi.UseShellExecute = false;
-        psi.Arguments = "\"" + tscJs + "\"";
-        foreach (string arg in args) {
-            psi.Arguments += " \"" + arg.Replace("\"", "\\\"") + "\"";
-        }
-        using (Process p = Process.Start(psi)) {
-            p.WaitForExit();
-            return p.ExitCode;
-        }
-    }
-}
-'@ | Set-Content -Path $wrapperCs
+          $wrapperB64 = "dXNpbmcgU3lzdGVtOwp1c2luZyBTeXN0ZW0uRGlhZ25vc3RpY3M7CnVzaW5nIFN5c3RlbS5JTzsKCmNsYXNzIFByb2dyYW0gewogICAgc3RhdGljIGludCBNYWluKHN0cmluZ1tdIGFyZ3MpIHsKICAgICAgICBzdHJpbmcgYmFzZURpciA9IEFwcERvbWFpbi5DdXJyZW50RG9tYWluLkJhc2VEaXJlY3Rvcnk7CiAgICAgICAgc3RyaW5nIHRzY0pzID0gUGF0aC5Db21iaW5lKGJhc2VEaXIsICJ0c2MuanMiKTsKICAgICAgICBzdHJpbmcgbm9kZUV4ZSA9IFBhdGguR2V0RnVsbFBhdGgoUGF0aC5Db21iaW5lKGJhc2VEaXIsIEAiLi5cLi5cLi5cLi5cbm9kZVx3aW5cbm9kZS5leGUiKSk7CiAgICAgICAgaWYgKCFGaWxlLkV4aXN0cyhub2RlRXhlKSkgewogICAgICAgICAgICBub2RlRXhlID0gIm5vZGUuZXhlIjsKICAgICAgICB9CiAgICAgICAgUHJvY2Vzc1N0YXJ0SW5mbyBwc2kgPSBuZXcgUHJvY2Vzc1N0YXJ0SW5mbygpOwogICAgICAgIHBzaS5GaWxlTmFtZSA9IG5vZGVFeGU7CiAgICAgICAgcHNpLlVzZVNoZWxsRXhlY3V0ZSA9IGZhbHNlOwogICAgICAgIHBzaS5Bcmd1bWVudHMgPSAiXCIiICsgdHNjSnMgKyAiXCIiOwogICAgICAgIGZvcmVhY2ggKHN0cmluZyBhcmcgaW4gYXJncykgewogICAgICAgICAgICBwc2kuQXJndW1lbnRzICs9ICIgXCIiICsgYXJnLlJlcGxhY2UoIlwiIiwgIlxcXCIiKSArICJcIiI7CiAgICAgICAgfQogICAgICAgIHVzaW5nIChQcm9jZXNzIHAgPSBQcm9jZXNzLlN0YXJ0KHBzaSkpIHsKICAgICAgICAgICAgcC5XYWl0Rm9yRXhpdCgpOwogICAgICAgICAgICByZXR1cm4gcC5FeGl0Q29kZTsKICAgICAgICB9CiAgICB9Cn0="
+          [System.IO.File]::WriteAllBytes($wrapperCs, [System.Convert]::FromBase64String($wrapperB64))
           & "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe" /nologo /out:"$tsLibDir/tsc.exe" $wrapperCs
           & "$tsLibDir/tsc.exe" --version
 
@@ -307,11 +285,11 @@ class Program {
           retention-days: 14
 
       - name: Publish GitHub Release
-        if: ${{ inputs.upload_release }}
+        if: ${{ inputs.upload_release == true || inputs.upload_release == '' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.release_tag }}
-          name: ChromiumAir ${{ inputs.release_tag }} (AVX2/FMA Comet Lake)
+          tag_name: ${{ inputs.release_tag || 'v155.0.8059.39-air' }}
+          name: ChromiumAir ${{ inputs.release_tag || 'v155.0.8059.39-air' }} (AVX2/FMA Comet Lake)
           body: |
             ## 🚀 ChromiumAir Release ${{ inputs.release_tag }}
             
