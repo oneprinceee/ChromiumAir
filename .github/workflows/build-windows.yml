@@ -221,6 +221,22 @@ jobs:
             & "$esbuildDst" --version
           }
 
+          Write-Host "Ensuring gperf binary is available for Blink code generation in third_party/gperf/bin..."
+          $gperfDir = "chromium_src/third_party/gperf/bin"
+          New-Item -ItemType Directory -Path $gperfDir -Force | Out-Null
+          $gperfDst = "$gperfDir/gperf.exe"
+          if (-not (Test-Path $gperfDst)) {
+            Write-Host "Fetching gperf binary from official package repository..."
+            $gperfZip = "$env:TEMP/gperf_pkg.zip"
+            Invoke-WebRequest -Uri "https://community.chocolatey.org/api/v2/package/gperf/3.1" -OutFile $gperfZip
+            $gpExtract = "$env:TEMP/gperf_extract"
+            New-Item -ItemType Directory -Path $gpExtract -Force | Out-Null
+            tar -xf $gperfZip -C $gpExtract tools/gperf-3.1-win64_x64.zip
+            tar -xf "$gpExtract/tools/gperf-3.1-win64_x64.zip" -C $gpExtract
+            Copy-Item "$gpExtract/gperf.exe" -Destination $gperfDst -Force
+            & "$gperfDst" --version
+          }
+
       - name: Apply Domain Substitution
         shell: pwsh
         run: |
