@@ -43,5 +43,23 @@ def main():
                     f.write(gn_content)
                 print(f'Updated NTDDI_VERSION define to {ntddi_macro} in {win_build_gn}')
 
+        # Also patch base/win/windows_version.cc check:
+        # Chromium 155 checks:
+        # #if !defined(NTDDI_WIN11_BR)
+        # #error Windows 10.0.28000.0 SDK or higher required.
+        # #endif
+        win_ver_cc = os.path.join('chromium_src', 'base', 'win', 'windows_version.cc')
+        if os.path.exists(win_ver_cc):
+            with open(win_ver_cc, 'r', encoding='utf-8') as f:
+                ver_content = f.read()
+            if '#if !defined(NTDDI_WIN11_BR)' in ver_content:
+                ver_content = ver_content.replace(
+                    '#if !defined(NTDDI_WIN11_BR)',
+                    '#if !defined(NTDDI_WIN11_GE) && !defined(NTDDI_WIN11_BR)'
+                )
+                with open(win_ver_cc, 'w', encoding='utf-8') as f:
+                    f.write(ver_content)
+                print(f'Patched Windows SDK requirement check in {win_ver_cc}')
+
 if __name__ == '__main__':
     main()
