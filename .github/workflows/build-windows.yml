@@ -262,13 +262,14 @@ jobs:
           $dxSrcDir = "chromium_src/third_party/microsoft_dxheaders/src"
           New-Item -ItemType Directory -Path $dxSrcDir -Force | Out-Null
           if (-not (Test-Path "$dxSrcDir/src/dxguids.cpp")) {
-            Write-Host "Fetching DirectX-Headers archive from Chromium Git..."
-            $dxTarGz = "$env:TEMP/dxheaders.tar.gz"
-            $dxTar = "$env:TEMP/dxheaders.tar"
-            curl.exe -k -f -sSL --connect-timeout 20 -m 120 "https://chromium.googlesource.com/external/github.com/microsoft/DirectX-Headers/+archive/07b94cba474be6cdfd934febdbd0b21ca0524187.tar.gz" -o $dxTarGz
-            & "C:\Program Files\7-Zip\7z.exe" x "$dxTarGz" -o"$env:TEMP" -y
-            & "C:\Program Files\7-Zip\7z.exe" x "$dxTar" -o"$dxSrcDir" -y
-            Remove-Item $dxTarGz, $dxTar -Force -ErrorAction SilentlyContinue
+            Write-Host "Fetching DirectX-Headers archive from GitHub codeload..."
+            $dxZip = "$env:TEMP/dxheaders.zip"
+            $dxExtract = "$env:TEMP/dx_extract"
+            New-Item -ItemType Directory -Path $dxExtract -Force | Out-Null
+            curl.exe -k -f -sSL --connect-timeout 20 -m 120 --retry 3 "https://codeload.github.com/microsoft/DirectX-Headers/zip/07b94cba474be6cdfd934febdbd0b21ca0524187" -o $dxZip
+            & "C:\Program Files\7-Zip\7z.exe" x "$dxZip" -o"$dxExtract" -y
+            Copy-Item "$dxExtract/DirectX-Headers-*/*" -Destination $dxSrcDir -Recurse -Force
+            Remove-Item $dxZip, $dxExtract -Recurse -Force -ErrorAction SilentlyContinue
             Write-Host "dxguids.cpp status: $(Test-Path "$dxSrcDir/src/dxguids.cpp")"
           }
 
