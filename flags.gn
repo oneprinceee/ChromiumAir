@@ -54,6 +54,10 @@ enable_widevine_cdm_host_verification=false
 ignore_missing_widevine_signing_cert=true
 enable_media_drm_storage=true
 
+# Build stability & modules
+use_clang_modules=false
+use_unified_system_module=false
+
 # Strip bloatware & unneeded telemetry/services
 chrome_pgo_phase=0
 disable_fieldtrial_testing_config=true
