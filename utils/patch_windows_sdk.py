@@ -29,5 +29,19 @@ def main():
                 else:
                     print(f'Warning: SDK_VERSION not found in {fpath}')
 
+        # Match NTDDI_VERSION to SDK 10.0.26100.0 (NTDDI_WIN11_GE = 0x0A000010)
+        # In SDK 10.0.26100.0, NTDDI_WIN11_BR is not defined in sdkddkver.h,
+        # which causes the C preprocessor to treat it as 0 and break Windows headers.
+        win_build_gn = os.path.join('chromium_src', 'build', 'config', 'win', 'BUILD.gn')
+        if os.path.exists(win_build_gn):
+            with open(win_build_gn, 'r', encoding='utf-8') as f:
+                gn_content = f.read()
+            if 'NTDDI_VERSION=NTDDI_WIN11_BR' in gn_content:
+                ntddi_macro = 'NTDDI_WIN11_GE' if sdk_ver.startswith('10.0.26100') else 'NTDDI_WIN11_ZN'
+                gn_content = gn_content.replace('NTDDI_VERSION=NTDDI_WIN11_BR', f'NTDDI_VERSION={ntddi_macro}')
+                with open(win_build_gn, 'w', encoding='utf-8') as f:
+                    f.write(gn_content)
+                print(f'Updated NTDDI_VERSION define to {ntddi_macro} in {win_build_gn}')
+
 if __name__ == '__main__':
     main()
